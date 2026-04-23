@@ -32,7 +32,6 @@ namespace file_manager {
 			const std::string &path, bool can_go_back);
 		void showMessage(const std::string &message);
 		std::string selectedEntryPath(bool *is_directory = nullptr) const;
-		bool moveToTrash(const std::string &path) const;
 		bool openPath(const std::string &path) const;
 
 	  private:

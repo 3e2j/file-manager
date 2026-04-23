@@ -15,6 +15,7 @@ namespace file_manager {
 		std::vector<std::shared_ptr<FileEntry>> list(const std::string &path);
 		std::shared_ptr<File> createFile(const std::string &path);
 		std::shared_ptr<Directory> createDirectory(const std::string &path);
+		bool deleteEntry(const std::string &path);
 
 	  private:
 		Directory root_;

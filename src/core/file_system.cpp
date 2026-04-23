@@ -39,15 +39,9 @@ namespace file_manager {
 	}
 
 	std::shared_ptr<File> FileSystem::createFile(const std::string &path) {
-		const std::filesystem::path file_path(path);
-		const std::filesystem::path parent = file_path.parent_path();
 		std::error_code error;
-
-		if (!parent.empty()) {
-			std::filesystem::create_directories(parent, error);
-			if (error) {
-				return nullptr;
-			}
+		if (std::filesystem::exists(path, error) || error) {
+			return nullptr;
 		}
 
 		std::ofstream stream(path);
@@ -59,11 +53,30 @@ namespace file_manager {
 
 	std::shared_ptr<Directory> FileSystem::createDirectory(const std::string &path) {
 		std::error_code error;
+		if (std::filesystem::exists(path, error) || error) {
+			return nullptr;
+		}
 		std::filesystem::create_directories(path, error);
 		if (error) {
 			return nullptr;
 		}
 		return std::make_shared<Directory>(path);
+	}
+
+	bool FileSystem::deleteEntry(const std::string &path) {
+		std::error_code error;
+		if (!std::filesystem::exists(path, error) || error) {
+			return false;
+		}
+
+		if (std::filesystem::is_directory(path, error)) {
+			if (error) {
+				return false;
+			}
+			return std::filesystem::remove_all(path, error) > 0 && !error;
+		}
+
+		return std::filesystem::remove(path, error) && !error;
 	}
 
 }

@@ -82,11 +82,6 @@ namespace file_manager {
 		}
 
 		const std::filesystem::path target = std::filesystem::path(current_path_) / normalized;
-		if (std::filesystem::exists(target)) {
-			ui_.showMessage("Entry already exists.");
-			return;
-		}
-
 		if (create_directory) {
 			if (!fs_.createDirectory(target.string())) {
 				ui_.showMessage("Failed to create directory.");
@@ -113,13 +108,8 @@ namespace file_manager {
 		}
 
 		const std::filesystem::path target = resolvePath(selected);
-		if (!std::filesystem::exists(target)) {
-			ui_.showMessage("Entry does not exist.");
-			return;
-		}
-
-		if (!ui_.moveToTrash(target.string())) {
-			ui_.showMessage("Failed to move entry to trash.");
+		if (!fs_.deleteEntry(target.string())) {
+			ui_.showMessage("Failed to delete entry.");
 			return;
 		}
 		refresh();

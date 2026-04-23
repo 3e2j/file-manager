@@ -63,8 +63,7 @@ namespace file_manager {
 	std::string FileEntry::getModifiedTime() const { return modified_time_; }
 
 	File::File(const std::string &path) : FileEntry(path) {
-		size_ = std::filesystem::exists(path_) ? static_cast<int>(std::filesystem::file_size(path_))
-											   : 0;
+		size_ = std::filesystem::exists(path_) ? static_cast<int>(std::filesystem::file_size(path_)) : 0;
 		type_ = std::filesystem::path(path_).extension().string();
 		if (type_.empty()) {
 			type_ = "unknown";

@@ -1,7 +1,6 @@
 #include "file_manager/ui/ui.hpp"
 
 #include <QDesktopServices>
-#include <QFile>
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QLabel>
@@ -163,10 +162,6 @@ namespace file_manager {
 			*is_directory = item->data(kDirRole).toBool();
 		}
 		return item->data(kPathRole).toString().toStdString();
-	}
-
-	bool UI::moveToTrash(const std::string &path) const {
-		return QFile::moveToTrash(QString::fromStdString(path));
 	}
 
 	bool UI::openPath(const std::string &path) const {
