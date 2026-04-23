@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -pedantic -fPIC -Iinclude $(shell pkg-config --cflags Qt6Widgets)
+CXXFLAGS := -std=c++23 -Wall -Wextra -pedantic -fPIC -Iinclude $(shell pkg-config --cflags Qt6Widgets)
 LDFLAGS := $(shell pkg-config --libs Qt6Widgets)
 TARGET := build/file-manager
 SOURCES := \

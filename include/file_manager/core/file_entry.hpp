@@ -51,4 +51,4 @@ namespace file_manager {
 		std::vector<std::shared_ptr<FileEntry>> entries_;
 	};
 
-} // namespace file_manager
+}

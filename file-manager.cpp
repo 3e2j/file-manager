@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include "file_manager/app/file_manager.hpp"
+#include "file_manager/app/app_controller.hpp"
 
 int main(int argc, char *argv[]) {
 	QApplication app(argc, argv);

@@ -24,6 +24,7 @@ namespace file_manager {
 		setWindowTitle("File Manager");
 		resize(900, 550);
 
+		// Build primary layout and top navigation row.
 		auto *root_layout = new QVBoxLayout();
 		entry_list_ = new QListWidget();
 		status_label_ = new QLabel();
@@ -62,6 +63,7 @@ namespace file_manager {
 		root_layout->addWidget(status_label_);
 		setLayout(root_layout);
 
+		// Wire UI actions to controller callbacks.
 		connect(back_button_, &QPushButton::clicked, [this] {
 			if (on_back_) {
 				on_back_();
@@ -182,6 +184,7 @@ namespace file_manager {
 
 	void UI::renderBreadcrumbs(const std::string &path) {
 		clearBreadcrumbs();
+		// Normalize path so each clickable segment resolves correctly.
 		const std::filesystem::path absolute = std::filesystem::path(path).is_absolute()
 												   ? std::filesystem::path(path)
 												   : std::filesystem::absolute(path);
@@ -217,4 +220,4 @@ namespace file_manager {
 		breadcrumb_layout_->addStretch();
 	}
 
-} // namespace file_manager
+}

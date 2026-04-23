@@ -1,4 +1,4 @@
-#include "file_manager/app/file_manager.hpp"
+#include "file_manager/app/app_controller.hpp"
 
 #include <filesystem>
 
@@ -21,6 +21,7 @@ namespace file_manager {
 	}
 
 	void FileManager::start() {
+		// Initialize navigation state from the canonical startup path.
 		current_path_ =
 			std::filesystem::weakly_canonical(std::filesystem::path(current_path_)).string();
 		history_.push_back(current_path_);
@@ -44,11 +45,19 @@ namespace file_manager {
 			return;
 		}
 		current_path_ = next_path;
+		// Trim forward history when navigating from a previous location.
 		if (history_index_ + 1 < history_.size()) {
 			history_.erase(
 				history_.begin() + static_cast<long>(history_index_ + 1), history_.end());
 		}
 		history_.push_back(current_path_);
+
+		// Prevent prolonged sessions from infinitely increasing memory usage
+		if (history_.size() > kMaxHistory) {
+            const size_t to_drop = history_.size() - kMaxHistory;
+            history_.erase(history_.begin(), history_.begin() + static_cast<long>(to_drop));
+        }
+
 		history_index_ = history_.size() - 1;
 		refresh();
 	}
@@ -79,9 +88,15 @@ namespace file_manager {
 		}
 
 		if (create_directory) {
-			fs_.createDirectory(target.string());
+			if (!fs_.createDirectory(target.string())) {
+				ui_.showMessage("Failed to create directory.");
+				return;
+			}
 		} else {
-			fs_.createFile(target.string());
+			if (!fs_.createFile(target.string())) {
+				ui_.showMessage("Failed to create file.");
+				return;
+			}
 		}
 		refresh();
 	}

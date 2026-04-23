@@ -56,4 +56,4 @@ namespace file_manager {
 		std::function<void(const std::string &, bool)> on_entry_activated_;
 	};
 
-} // namespace file_manager
+}

@@ -20,4 +20,4 @@ namespace file_manager {
 		Directory root_;
 	};
 
-} // namespace file_manager
+}

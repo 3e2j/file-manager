@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <system_error>
 
 namespace file_manager {
 
@@ -26,6 +27,7 @@ namespace file_manager {
 			result.push_back(entry);
 		}
 
+		// Keep directories grouped before files, then sort by name.
 		std::sort(result.begin(), result.end(),
 			[](const std::shared_ptr<FileEntry> &left, const std::shared_ptr<FileEntry> &right) {
 				if (left->isDirectory() != right->isDirectory()) {
@@ -37,12 +39,30 @@ namespace file_manager {
 	}
 
 	std::shared_ptr<File> FileSystem::createFile(const std::string &path) {
-		std::ofstream(path).close();
+		const std::filesystem::path file_path(path);
+		const std::filesystem::path parent = file_path.parent_path();
+		std::error_code error;
+
+		if (!parent.empty()) {
+			std::filesystem::create_directories(parent, error);
+			if (error) {
+				return nullptr;
+			}
+		}
+
+		std::ofstream stream(path);
+		if (!stream.is_open()) {
+			return nullptr;
+		}
 		return std::make_shared<File>(path);
 	}
 
 	std::shared_ptr<Directory> FileSystem::createDirectory(const std::string &path) {
-		std::filesystem::create_directories(path);
+		std::error_code error;
+		std::filesystem::create_directories(path, error);
+		if (error) {
+			return nullptr;
+		}
 		return std::make_shared<Directory>(path);
 	}
 

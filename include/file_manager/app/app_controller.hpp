@@ -26,6 +26,8 @@ namespace file_manager {
 		void goBack();
 		std::filesystem::path resolvePath(const std::string &raw_path) const;
 
+		static constexpr size_t kMaxHistory = 50;
+
 		std::string current_path_;
 		std::vector<std::string> history_;
 		size_t history_index_ = 0;
@@ -33,4 +35,4 @@ namespace file_manager {
 		FileSystem fs_;
 	};
 
-} // namespace file_manager
+}
