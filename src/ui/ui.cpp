@@ -18,6 +18,49 @@
 #include "file_manager/core/file_entry.hpp"
 
 namespace file_manager {
+	constexpr std::size_t kDisplayLineLength = 18;
+	constexpr std::size_t kSecondLineVisibleLength = kDisplayLineLength - 3;
+
+	// Avoids weird formatting when adding newlines, tries to keep naming readible
+	std::size_t FindPreferredSplit(const std::string &name) {
+		const std::size_t space_pos = name.rfind(' ', kDisplayLineLength - 1);
+		const std::size_t underscore_pos = name.rfind('_', kDisplayLineLength - 1);
+		if (space_pos == std::string::npos) {
+			return underscore_pos;
+		}
+		if (underscore_pos == std::string::npos) {
+			return space_pos;
+		}
+		if (space_pos > underscore_pos) {
+			return space_pos;
+		}
+		return underscore_pos;
+	}
+
+	// Formats name over a max of two lines, truncates if too long.
+	std::string FormatDisplayName(const std::string &name) {
+		if (name.size() <= kDisplayLineLength) {
+			return name;
+		}
+
+		std::size_t split_pos = kDisplayLineLength;
+		std::size_t second_start = kDisplayLineLength;
+		const std::size_t preferred_split = FindPreferredSplit(name);
+		if (preferred_split != std::string::npos && preferred_split > 0) {
+			const std::size_t candidate_second_start = preferred_split + 1;
+			if (name.size() - candidate_second_start <= kDisplayLineLength) {
+				split_pos = preferred_split;
+				second_start = candidate_second_start;
+			}
+		}
+
+		if (name.size() <= kDisplayLineLength * 2) {
+			return name.substr(0, split_pos) + "\n" + name.substr(second_start);
+		}
+		return name.substr(0, split_pos) + "\n" +
+			name.substr(second_start, kSecondLineVisibleLength) + "...";
+	}
+
 
 	UI::UI() {
 		setWindowTitle("File Manager");
@@ -41,11 +84,13 @@ namespace file_manager {
 		top_row->addWidget(breadcrumb_container, 1);
 
 		entry_list_->setViewMode(QListView::IconMode);
-		entry_list_->setIconSize(QSize(66, 66));
+		entry_list_->setIconSize(QSize(70, 70));
 		entry_list_->setResizeMode(QListView::Adjust);
 		entry_list_->setMovement(QListView::Static);
-		entry_list_->setWordWrap(true);
+		entry_list_->setGridSize(QSize(150, 110));
 		entry_list_->setSpacing(12);
+		entry_list_->setWordWrap(true);
+		entry_list_->setTextElideMode(Qt::ElideNone);
 
 		auto *button_row = new QHBoxLayout();
 		auto *create_button = new QPushButton("Create");
@@ -140,10 +185,11 @@ namespace file_manager {
 		// Entry related display
 		for (const auto &entry : entries) {
 			auto *item = new QListWidgetItem();
-			item->setText(QString::fromStdString(entry->getName()));
+			item->setText(QString::fromStdString(FormatDisplayName(entry->getName())));
 
 			const std::string tooltip =
-			    "Created: " + entry->getCreatedTime() +
+				"Name: " + entry->getName() +
+				"\nCreated: " + entry->getCreatedTime() +
 				"\nModified: " + entry->getModifiedTime() +
 				"\nAccessed: " + entry->getAccessedTime();
 			item->setToolTip(QString::fromStdString(tooltip));
