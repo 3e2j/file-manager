@@ -30,11 +30,15 @@ bool run_test_file_entry() {
 	ok &= test_support::expect(ext_file.getPath() == file_with_ext.string(), "File path should be preserved");
 	ok &= test_support::expect(ext_file.getType() == ".txt", "File extension should be exposed as type");
 	ok &= test_support::expect(!ext_file.isDirectory(), "File should report isDirectory false");
+	ok &= test_support::expect(ext_file.getCreatedTime() != "N/A", "Existing file should have created time");
 	ok &= test_support::expect(ext_file.getModifiedTime() != "N/A", "Existing file should have modified time");
+	ok &= test_support::expect(ext_file.getAccessedTime() != "N/A", "Existing file should have accessed time");
 
 	// Test fallback values for unknown type / missing files
 	ok &= test_support::expect(no_ext_file.getType() == "unknown", "File without extension should use unknown type");
+	ok &= test_support::expect(missing_file.getCreatedTime() == "N/A", "Missing file should have N/A created time");
 	ok &= test_support::expect(missing_file.getModifiedTime() == "N/A", "Missing file should have N/A modified time");
+	ok &= test_support::expect(missing_file.getAccessedTime() == "N/A", "Missing file should have N/A accessed time");
 
 	// Test Directory identity
 	ok &= test_support::expect(directory.getName() == "docs", "Directory should expose folder name");

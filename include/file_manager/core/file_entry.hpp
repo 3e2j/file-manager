@@ -13,7 +13,9 @@ namespace file_manager {
 
 		std::string getName() const;
 		std::string getPath() const;
+		std::string getCreatedTime() const;
 		std::string getModifiedTime() const;
+		std::string getAccessedTime() const;
 		virtual bool isDirectory() const = 0;
 
 	  protected:

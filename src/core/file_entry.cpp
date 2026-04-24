@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <sys/stat.h>
 
 namespace file_manager {
 
@@ -15,6 +16,14 @@ namespace file_manager {
 		std::string modified = "N/A";
 		std::string accessed = "N/A";
 	};
+
+	static std::string TimeTToString(std::time_t raw_time) {
+		std::tm local_tm{};
+		localtime_r(&raw_time, &local_tm);
+		std::ostringstream output;
+		output << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
+		return output.str();
+	}
 
 	static std::string TimePointToString(std::filesystem::file_time_type time_point) {
 		const auto now_file_clock = std::filesystem::file_time_type::clock::now();
@@ -35,6 +44,15 @@ namespace file_manager {
 			return timestamps;
 		}
 
+		struct stat file_stat {};
+		if (stat(fs_path.c_str(), &file_stat) == 0) {
+			timestamps.created = TimeTToString(file_stat.st_ctime);
+			timestamps.accessed = TimeTToString(file_stat.st_atime);
+			timestamps.modified = TimeTToString(file_stat.st_mtime);
+			return timestamps;
+		}
+
+		// Fallback when stat metadata is unavailable: only modified time can be read.
 		timestamps.modified = TimePointToString(std::filesystem::last_write_time(fs_path));
 		return timestamps;
 	}
@@ -46,24 +64,24 @@ namespace file_manager {
 			name_ = path_;
 		}
 
-		if (std::filesystem::exists(fs_path)) {
-			const FileTimestamps times = ReadFileTimestamps(fs_path);
-			created_time_ = times.created;
-			modified_time_ = times.modified;
-			accessed_time_ = times.accessed;
-		} else {
-			created_time_ = "N/A";
-			modified_time_ = "N/A";
-			accessed_time_ = "N/A";
-		}
+		const FileTimestamps times = ReadFileTimestamps(fs_path);
+		created_time_ = times.created;
+		modified_time_ = times.modified;
+		accessed_time_ = times.accessed;
 	}
 
 	std::string FileEntry::getName() const { return name_; }
 	std::string FileEntry::getPath() const { return path_; }
+	std::string FileEntry::getCreatedTime() const { return created_time_; }
 	std::string FileEntry::getModifiedTime() const { return modified_time_; }
+	std::string FileEntry::getAccessedTime() const { return accessed_time_; }
 
 	File::File(const std::string &path) : FileEntry(path) {
-		size_ = std::filesystem::exists(path_) ? static_cast<int>(std::filesystem::file_size(path_)) : 0;
+		if (std::filesystem::exists(path_)) {
+			size_ = static_cast<int>(std::filesystem::file_size(path_));
+		} else {
+			size_ = 0;
+		}
 		type_ = std::filesystem::path(path_).extension().string();
 		if (type_.empty()) {
 			type_ = "unknown";

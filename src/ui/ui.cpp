@@ -137,14 +137,26 @@ namespace file_manager {
 		renderBreadcrumbs(path);
 		entry_list_->clear();
 
+		// Entry related display
 		for (const auto &entry : entries) {
 			auto *item = new QListWidgetItem();
 			item->setText(QString::fromStdString(entry->getName()));
-			item->setToolTip(QString::fromStdString(entry->getModifiedTime()));
+
+			const std::string tooltip =
+			    "Created: " + entry->getCreatedTime() +
+				"\nModified: " + entry->getModifiedTime() +
+				"\nAccessed: " + entry->getAccessedTime();
+			item->setToolTip(QString::fromStdString(tooltip));
 			item->setData(kPathRole, QString::fromStdString(entry->getPath()));
 			item->setData(kDirRole, entry->isDirectory());
-			item->setIcon(style()->standardIcon(
-				entry->isDirectory() ? QStyle::SP_DirIcon : QStyle::SP_FileIcon));
+
+			// This is to be moved out if more type-specific file icons get added
+			QStyle::StandardPixmap icon_type = QStyle::SP_FileIcon;
+			if (entry->isDirectory()) {
+				icon_type = QStyle::SP_DirIcon;
+			}
+			item->setIcon(style()->standardIcon(icon_type));
+
 			entry_list_->addItem(item);
 		}
 	}
@@ -180,9 +192,12 @@ namespace file_manager {
 	void UI::renderBreadcrumbs(const std::string &path) {
 		clearBreadcrumbs();
 		// Normalize path so each clickable segment resolves correctly.
-		const std::filesystem::path absolute = std::filesystem::path(path).is_absolute()
-												   ? std::filesystem::path(path)
-												   : std::filesystem::absolute(path);
+		std::filesystem::path absolute;
+		if (std::filesystem::path(path).is_absolute()) {
+			absolute = std::filesystem::path(path);
+		} else {
+			absolute = std::filesystem::absolute(path);
+		}
 		std::filesystem::path cumulative;
 		bool first = true;
 		for (const auto &part : absolute) {
