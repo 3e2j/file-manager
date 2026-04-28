@@ -73,7 +73,10 @@ namespace file_manager {
 		displayMenu();
 
 		auto *top_row = new QHBoxLayout();
-		back_button_ = new QPushButton("< Back");
+		back_button_ = new QPushButton("<");
+		forward_button_ = new QPushButton(">");
+		back_button_->setMaximumWidth(40);
+		forward_button_->setMaximumWidth(40);
 		breadcrumb_layout_ = new QHBoxLayout();
 		breadcrumb_layout_->setContentsMargins(0, 0, 0, 0);
 		breadcrumb_layout_->setSpacing(4);
@@ -81,6 +84,7 @@ namespace file_manager {
 		auto *breadcrumb_container = new QWidget();
 		breadcrumb_container->setLayout(breadcrumb_layout_);
 		top_row->addWidget(back_button_);
+		top_row->addWidget(forward_button_);
 		top_row->addWidget(breadcrumb_container, 1);
 
 		entry_list_->setViewMode(QListView::IconMode);
@@ -111,6 +115,11 @@ namespace file_manager {
 		connect(back_button_, &QPushButton::clicked, [this] {
 			if (handlers_.on_back) {
 				handlers_.on_back();
+			}
+		});
+		connect(forward_button_, &QPushButton::clicked, [this] {
+			if (handlers_.on_forward) {
+				handlers_.on_forward();
 			}
 		});
 		connect(create_button, &QPushButton::clicked, [this] {
@@ -150,7 +159,7 @@ namespace file_manager {
 	void UI::setEventHandlers(const EventHandlers &handlers) { handlers_ = handlers; }
 
 	void UI::displayMenu() {
-		output_ = "Actions: Back, Create, Delete, Refresh\n"
+		output_ = "Actions: Back, Forward, Create, Delete, Refresh\n"
 				  "Double-click: open file / enter directory\n"
 				  "Create: append '/' to create a directory";
 		status_label_->setText(QString::fromStdString(output_));
@@ -168,8 +177,9 @@ namespace file_manager {
 	}
 
 	void UI::showDirectory(const std::vector<std::shared_ptr<FileEntry>> &entries,
-		const std::string &path, bool can_go_back) {
+		const std::string &path, bool can_go_back, bool can_go_forward) {
 		back_button_->setEnabled(can_go_back);
+		forward_button_->setEnabled(can_go_forward);
 		renderBreadcrumbs(path);
 		entry_list_->clear();
 

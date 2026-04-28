@@ -12,6 +12,7 @@ namespace file_manager {
 		handlers.on_delete = [this] { deleteEntry(); };
 		handlers.on_refresh = [this] { refresh(); };
 		handlers.on_back = [this] { goBack(); };
+		handlers.on_forward = [this] { goForward(); };
 		handlers.on_path_part_clicked = [this](const std::string &path) { navigate(path); };
 		handlers.on_entry_activated = [this](const std::string &path, bool is_directory) {
 			if (is_directory) {
@@ -34,7 +35,7 @@ namespace file_manager {
 	}
 
 	void FileManager::refresh() {
-		ui_.showDirectory(fs_.list(current_path_), current_path_, canGoBack());
+		ui_.showDirectory(fs_.list(current_path_), current_path_, canGoBack(), canGoForward());
 	}
 
 	void FileManager::navigate(const std::string &path) {
@@ -151,6 +152,17 @@ namespace file_manager {
 			return;
 		}
 		--history_index_;
+		current_path_ = history_[history_index_];
+		refresh();
+	}
+
+	bool FileManager::canGoForward() const { return history_index_ + 1 < history_.size(); }
+
+	void FileManager::goForward() {
+		if (!canGoForward()) {
+			return;
+		}
+		++history_index_;
 		current_path_ = history_[history_index_];
 		refresh();
 	}

@@ -24,6 +24,8 @@ namespace file_manager {
 
 		bool canGoBack() const;
 		void goBack();
+		bool canGoForward() const;
+		void goForward();
 		std::filesystem::path resolvePath(const std::string &raw_path) const;
 
 		static constexpr size_t kMaxHistory = 50;

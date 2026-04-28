@@ -21,6 +21,7 @@ namespace file_manager {
 		std::function<void()> on_delete;
 		std::function<void()> on_refresh;
 		std::function<void()> on_back;
+		std::function<void()> on_forward;
 		std::function<void(const std::string &)> on_path_part_clicked;
 		std::function<void(const std::string &, bool)> on_entry_activated;
 	};
@@ -34,7 +35,7 @@ namespace file_manager {
 		void displayMenu();
 		std::string getUserInput(const std::string &prompt = "Input");
 		void showDirectory(const std::vector<std::shared_ptr<FileEntry>> &entries,
-			const std::string &path, bool can_go_back);
+			const std::string &path, bool can_go_back, bool can_go_forward);
 		void showMessage(const std::string &message);
 		std::string selectedEntryPath(bool *is_directory = nullptr) const;
 		bool openPath(const std::string &path) const;
@@ -49,6 +50,7 @@ namespace file_manager {
 		std::string input_;
 		std::string output_;
 		QPushButton *back_button_ = nullptr;
+		QPushButton *forward_button_ = nullptr;
 		QHBoxLayout *breadcrumb_layout_ = nullptr;
 		QListWidget *entry_list_ = nullptr;
 		QLabel *status_label_ = nullptr;
