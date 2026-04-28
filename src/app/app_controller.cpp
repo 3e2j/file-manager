@@ -6,18 +6,21 @@ namespace file_manager {
 
 	FileManager::FileManager(std::string start_path)
 		: current_path_(std::move(start_path)), fs_(current_path_) {
-		ui_.setOnCreate([this] { createEntry(); });
-		ui_.setOnDelete([this] { deleteEntry(); });
-		ui_.setOnRefresh([this] { refresh(); });
-		ui_.setOnBack([this] { goBack(); });
-		ui_.setOnPathPartClicked([this](const std::string &path) { navigate(path); });
-		ui_.setOnEntryActivated([this](const std::string &path, bool is_directory) {
+		// Callback connections for UI events
+		EventHandlers handlers;
+		handlers.on_create = [this] { createEntry(); };
+		handlers.on_delete = [this] { deleteEntry(); };
+		handlers.on_refresh = [this] { refresh(); };
+		handlers.on_back = [this] { goBack(); };
+		handlers.on_path_part_clicked = [this](const std::string &path) { navigate(path); };
+		handlers.on_entry_activated = [this](const std::string &path, bool is_directory) {
 			if (is_directory) {
 				navigate(path);
 				return;
 			}
 			executeFile(path);
-		});
+		};
+		ui_.setEventHandlers(handlers);
 	}
 
 	void FileManager::start() {

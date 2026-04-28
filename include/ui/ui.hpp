@@ -15,16 +15,21 @@ namespace file_manager {
 
 	class FileEntry;
 
+	// Callbacks assigned by app_controller to respond to internal events
+	struct EventHandlers {
+		std::function<void()> on_create;
+		std::function<void()> on_delete;
+		std::function<void()> on_refresh;
+		std::function<void()> on_back;
+		std::function<void(const std::string &)> on_path_part_clicked;
+		std::function<void(const std::string &, bool)> on_entry_activated;
+	};
+
 	class UI : public QWidget {
 	  public:
 		UI();
 
-		void setOnCreate(const std::function<void()> &callback);
-		void setOnDelete(const std::function<void()> &callback);
-		void setOnRefresh(const std::function<void()> &callback);
-		void setOnBack(const std::function<void()> &callback);
-		void setOnPathPartClicked(const std::function<void(const std::string &)> &callback);
-		void setOnEntryActivated(const std::function<void(const std::string &, bool)> &callback);
+		void setEventHandlers(const EventHandlers &handlers);
 
 		void displayMenu();
 		std::string getUserInput(const std::string &prompt = "Input");
@@ -47,12 +52,7 @@ namespace file_manager {
 		QHBoxLayout *breadcrumb_layout_ = nullptr;
 		QListWidget *entry_list_ = nullptr;
 		QLabel *status_label_ = nullptr;
-		std::function<void()> on_create_;
-		std::function<void()> on_delete_;
-		std::function<void()> on_refresh_;
-		std::function<void()> on_back_;
-		std::function<void(const std::string &)> on_path_part_clicked_;
-		std::function<void(const std::string &, bool)> on_entry_activated_;
+		EventHandlers handlers_;
 	};
 
 }

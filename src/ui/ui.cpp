@@ -109,54 +109,45 @@ namespace file_manager {
 
 		// Wire UI actions to controller callbacks.
 		connect(back_button_, &QPushButton::clicked, [this] {
-			if (on_back_) {
-				on_back_();
+			if (handlers_.on_back) {
+				handlers_.on_back();
 			}
 		});
 		connect(create_button, &QPushButton::clicked, [this] {
-			if (on_create_) {
-				on_create_();
+			if (handlers_.on_create) {
+				handlers_.on_create();
 			}
 		});
 		connect(delete_button, &QPushButton::clicked, [this] {
-			if (on_delete_) {
-				on_delete_();
+			if (handlers_.on_delete) {
+				handlers_.on_delete();
 			}
 		});
 		auto *delete_shortcut = new QShortcut(QKeySequence::Delete, this);
 		delete_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 		connect(delete_shortcut, &QShortcut::activated, [this] {
-			if (on_delete_) {
-				on_delete_();
+			if (handlers_.on_delete) {
+				handlers_.on_delete();
 			}
 		});
 		connect(refresh_button, &QPushButton::clicked, [this] {
-			if (on_refresh_) {
-				on_refresh_();
+			if (handlers_.on_refresh) {
+				handlers_.on_refresh();
 			}
 		});
 		connect(entry_list_, &QListWidget::itemDoubleClicked, [this](QListWidgetItem *item) {
-			if (!item || !on_entry_activated_) {
+			if (!item || !handlers_.on_entry_activated) {
 				return;
 			}
 			const std::string path = item->data(kPathRole).toString().toStdString();
 			const bool is_directory = item->data(kDirRole).toBool();
 			if (!path.empty()) {
-				on_entry_activated_(path, is_directory);
+				handlers_.on_entry_activated(path, is_directory);
 			}
 		});
 	}
 
-	void UI::setOnCreate(const std::function<void()> &callback) { on_create_ = callback; }
-	void UI::setOnDelete(const std::function<void()> &callback) { on_delete_ = callback; }
-	void UI::setOnRefresh(const std::function<void()> &callback) { on_refresh_ = callback; }
-	void UI::setOnBack(const std::function<void()> &callback) { on_back_ = callback; }
-	void UI::setOnPathPartClicked(const std::function<void(const std::string &)> &callback) {
-		on_path_part_clicked_ = callback;
-	}
-	void UI::setOnEntryActivated(const std::function<void(const std::string &, bool)> &callback) {
-		on_entry_activated_ = callback;
-	}
+	void UI::setEventHandlers(const EventHandlers &handlers) { handlers_ = handlers; }
 
 	void UI::displayMenu() {
 		output_ = "Actions: Back, Create, Delete, Refresh\n"
@@ -267,8 +258,8 @@ namespace file_manager {
 			button->setFlat(true);
 			const std::string target_path = cumulative.string();
 			connect(button, &QPushButton::clicked, [this, target_path] {
-				if (on_path_part_clicked_) {
-					on_path_part_clicked_(target_path);
+				if (handlers_.on_path_part_clicked) {
+					handlers_.on_path_part_clicked(target_path);
 				}
 			});
 			breadcrumb_layout_->addWidget(button);
