@@ -1,4 +1,4 @@
-#include "file_manager/ui/ui.hpp"
+#include "ui/ui.hpp"
 
 #include <QDesktopServices>
 #include <QHBoxLayout>
@@ -15,7 +15,7 @@
 
 #include <filesystem>
 
-#include "file_manager/core/file_entry.hpp"
+#include "core/file_entry.hpp"
 
 namespace file_manager {
 	constexpr std::size_t kDisplayLineLength = 18;

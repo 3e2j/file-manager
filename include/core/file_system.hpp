@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "file_manager/core/file_entry.hpp"
+#include "core/file_entry.hpp"
 
 namespace file_manager {
 

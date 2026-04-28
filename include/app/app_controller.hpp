@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "file_manager/core/file_system.hpp"
-#include "file_manager/ui/ui.hpp"
+#include "core/file_system.hpp"
+#include "ui/ui.hpp"
 
 namespace file_manager {
 

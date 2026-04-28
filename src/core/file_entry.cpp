@@ -1,4 +1,4 @@
-#include "file_manager/core/file_entry.hpp"
+#include "core/file_entry.hpp"
 
 #include <algorithm>
 #include <chrono>

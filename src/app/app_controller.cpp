@@ -1,4 +1,4 @@
-#include "file_manager/app/app_controller.hpp"
+#include "app/app_controller.hpp"
 
 #include <filesystem>
 

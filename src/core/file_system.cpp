@@ -1,4 +1,4 @@
-#include "file_manager/core/file_system.hpp"
+#include "core/file_system.hpp"
 
 #include <algorithm>
 #include <filesystem>
