@@ -1,6 +1,5 @@
 #include "core/file_entry.hpp"
 
-#include <algorithm>
 #include <chrono>
 #include <ctime>
 #include <filesystem>
@@ -103,10 +102,13 @@ namespace file_manager {
 	void Directory::addEntry(const std::shared_ptr<FileEntry> &entry) { entries_.push_back(entry); }
 
 	void Directory::removeEntry(const std::string &path) {
-		entries_.erase(
-			std::remove_if(entries_.begin(), entries_.end(),
-				[&](const std::shared_ptr<FileEntry> &entry) { return entry->getPath() == path; }),
-			entries_.end());
+		// Find and remove the entry with matching path
+		for (size_t i = 0; i < entries_.size(); ++i) {
+			if (entries_[i]->getPath() == path) {
+				entries_.erase(entries_.begin() + i);
+				return;
+			}
+		}
 	}
 
 	std::vector<std::shared_ptr<FileEntry>> Directory::listEntries() const { return entries_; }

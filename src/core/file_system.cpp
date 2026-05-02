@@ -7,6 +7,17 @@
 
 namespace file_manager {
 
+    // Used for sort(), either keep as is (true) or swap order (false)
+	static bool CompareEntries(const std::shared_ptr<FileEntry> &left,
+	                           const std::shared_ptr<FileEntry> &right) {
+		// Directories come before files
+		if (left->isDirectory() != right->isDirectory()) {
+			return left->isDirectory();
+		}
+		// Within same type, sort alphabetically by name
+		return left->getName() < right->getName();
+	}
+
 	FileSystem::FileSystem(const std::string &root_path) : root_(root_path) {}
 
 	std::vector<std::shared_ptr<FileEntry>> FileSystem::list(const std::string &path) {
@@ -27,14 +38,7 @@ namespace file_manager {
 			result.push_back(entry);
 		}
 
-		// Keep directories grouped before files, then sort by name.
-		std::sort(result.begin(), result.end(),
-			[](const std::shared_ptr<FileEntry> &left, const std::shared_ptr<FileEntry> &right) {
-				if (left->isDirectory() != right->isDirectory()) {
-					return left->isDirectory();
-				}
-				return left->getName() < right->getName();
-			});
+		std::sort(result.begin(), result.end(), CompareEntries);
 		return result;
 	}
 
