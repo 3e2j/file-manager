@@ -4,8 +4,6 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
-#include <iomanip>
-#include <sstream>
 #include <sys/stat.h>
 
 namespace file_manager {
@@ -16,26 +14,12 @@ namespace file_manager {
 		std::string accessed = "N/A";
 	};
 
+	// Convert to local (zoned) time and return formatted string
 	static std::string TimeTToString(std::time_t raw_time) {
-		std::tm local_tm{};
-		localtime_r(&raw_time, &local_tm);
-		std::ostringstream output;
-		output << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
-		return output.str();
-	}
-
-	static std::string TimePointToString(std::filesystem::file_time_type time_point) {
-		const auto now_file_clock = std::filesystem::file_time_type::clock::now();
-		const auto now_system_clock = std::chrono::system_clock::now();
-		const auto system_time = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-			time_point - now_file_clock + now_system_clock);
-		const std::time_t raw = std::chrono::system_clock::to_time_t(system_time);
-		std::tm local_tm{};
-		localtime_r(&raw, &local_tm);
-		std::ostringstream output;
-		output << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
-		return output.str();
-	}
+        auto tp = std::chrono::system_clock::from_time_t(raw_time);
+        auto zt = std::chrono::zoned_time{std::chrono::current_zone(), std::chrono::floor<std::chrono::seconds>(tp)};
+        return std::format("{:%Y-%m-%d %H:%M:%S}", zt);
+    }
 
 	static FileTimestamps ReadFileTimestamps(const std::filesystem::path &fs_path) {
 		FileTimestamps timestamps;
@@ -48,11 +32,7 @@ namespace file_manager {
 			timestamps.created = TimeTToString(file_stat.st_ctime);
 			timestamps.accessed = TimeTToString(file_stat.st_atime);
 			timestamps.modified = TimeTToString(file_stat.st_mtime);
-			return timestamps;
 		}
-
-		// Fallback when stat metadata is unavailable: only modified time can be read.
-		timestamps.modified = TimePointToString(std::filesystem::last_write_time(fs_path));
 		return timestamps;
 	}
 
